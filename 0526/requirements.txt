@@ -1,0 +1,9 @@
+mcp
+'mcp[cli]'
+pandas
+kaggle
+plotly
+matplotlib
+sweetviz
+pandas-profiling
+ydata-profiling
