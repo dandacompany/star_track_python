@@ -1,10 +1,8 @@
--- 스키마 생성 (PostgreSQL 기준)
-CREATE SCHEMA IF NOT EXISTS ecommerce_advanced;
 
 
 -- 사용자 테이블 생성
 
-CREATE OR REPLACE TABLE ecommerce_advanced.users (
+CREATE OR REPLACE TABLE users (
     user_id INT64 NOT NULL,
     registration_date DATE NOT NULL,
     user_type STRING NOT NULL,
@@ -13,7 +11,7 @@ CREATE OR REPLACE TABLE ecommerce_advanced.users (
 );
 
 -- 사용자 데이터 삽입
-INSERT INTO ecommerce_advanced.users 
+INSERT INTO users 
 (user_id, registration_date, user_type, city, country)
 VALUES
 (1, '2022-01-05', 'REGULAR', 'Seoul', 'South Korea'),
@@ -48,7 +46,7 @@ VALUES
 (30, '2024-05-10', 'REGULAR', 'Busan', 'South Korea');
 
 -- 공급업체 테이블 생성
-CREATE OR REPLACE TABLE ecommerce_advanced.suppliers (
+CREATE OR REPLACE TABLE suppliers (
     supplier_id INT64 NOT NULL,
     supplier_name STRING NOT NULL,
     contact_person STRING,
@@ -57,7 +55,7 @@ CREATE OR REPLACE TABLE ecommerce_advanced.suppliers (
 );
 
 -- 공급업체 데이터 삽입
-INSERT INTO ecommerce_advanced.suppliers 
+INSERT INTO suppliers 
 (supplier_id, supplier_name, contact_person, contact_email, country)
 VALUES
 (1, 'Korea Tech Suppliers', 'Park Jisung', 'park.jisung@koreatechsuppliers.com', 'South Korea'),
@@ -72,14 +70,14 @@ VALUES
 (10, 'Gwangju Sports Equipment', 'Lim Junho', 'lim.junho@gwangjusports.com', 'South Korea');
 
 -- 제품 카테고리 테이블 생성
-CREATE OR REPLACE TABLE ecommerce_advanced.categories (
+CREATE OR REPLACE TABLE categories (
     category_id INT64 NOT NULL,
     category_name STRING NOT NULL,
     parent_category_id INT64
 );
 
 -- 카테고리 데이터 삽입
-INSERT INTO ecommerce_advanced.categories 
+INSERT INTO categories 
 (category_id, category_name, parent_category_id)
 VALUES
 (1, '전자제품', NULL),
@@ -106,7 +104,7 @@ VALUES
 (22, '캠핑용품', 19);
 
 -- 제품 테이블 생성
-CREATE OR REPLACE TABLE ecommerce_advanced.products (
+CREATE OR REPLACE TABLE products (
     product_id INT64 NOT NULL,
     product_name STRING NOT NULL,
     category_id INT64 NOT NULL,
@@ -117,7 +115,7 @@ CREATE OR REPLACE TABLE ecommerce_advanced.products (
 );
 
 -- 제품 데이터 삽입
-INSERT INTO ecommerce_advanced.products 
+INSERT INTO products 
 (product_id, product_name, category_id, price, stock_quantity, added_date, supplier_id)
 VALUES
 (101, '프리미엄 4K 스마트 TV 55인치', 2, 899000, 50, '2023-01-15', 4),
@@ -167,7 +165,7 @@ VALUES
 (905, '스마트 운동 밴드', 20, 49000, 100, '2023-01-20', 10);
 
 -- 주문 테이블 생성
-CREATE OR REPLACE TABLE ecommerce_advanced.orders (
+CREATE OR REPLACE TABLE orders (
     order_id INT64 NOT NULL,
     user_id INT64 NOT NULL,
     order_date TIMESTAMP NOT NULL,
@@ -177,7 +175,7 @@ CREATE OR REPLACE TABLE ecommerce_advanced.orders (
 );
 
 -- 주문 데이터 삽입
-INSERT INTO ecommerce_advanced.orders 
+INSERT INTO orders 
 (order_id, user_id, order_date, total_amount, payment_method, order_status)
 VALUES
 (10001, 1, '2023-01-05 14:32:15', 968000, '신용카드', '배송완료'),
@@ -312,7 +310,7 @@ VALUES
 (10130, 16, '2024-05-18 12:15:30', 49000, '간편결제', '결제완료');
 
 -- 주문 상세 테이블 생성
-CREATE OR REPLACE TABLE ecommerce_advanced.order_items (
+CREATE OR REPLACE TABLE order_items (
     order_item_id INT64 NOT NULL,
     order_id INT64 NOT NULL,
     product_id INT64 NOT NULL,
@@ -322,7 +320,7 @@ CREATE OR REPLACE TABLE ecommerce_advanced.order_items (
 );
 
 -- 주문 상세 데이터 삽입
-INSERT INTO ecommerce_advanced.order_items 
+INSERT INTO order_items 
 (order_item_id, order_id, product_id, quantity, price_per_unit, discount)
 VALUES
 (1001, 10001, 201, 1, 899000, 0),
@@ -507,7 +505,7 @@ VALUES
 (1180, 10130, 802, 1, 49000, 0);
 
 -- 제품 리뷰 테이블 생성
-CREATE OR REPLACE TABLE ecommerce_advanced.reviews (
+CREATE OR REPLACE TABLE reviews (
     review_id INT64 NOT NULL,
     product_id INT64 NOT NULL,
     user_id INT64 NOT NULL,
@@ -517,7 +515,7 @@ CREATE OR REPLACE TABLE ecommerce_advanced.reviews (
 );
 
 -- 제품 리뷰 데이터 삽입
-INSERT INTO ecommerce_advanced.reviews 
+INSERT INTO reviews 
 (review_id, product_id, user_id, rating, review_text, review_date)
 VALUES
 (1, 101, 1, 5, '화질이 정말 좋고 스마트 기능도 완벽해요!', '2023-01-20 15:30:00'),
