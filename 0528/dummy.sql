@@ -2,12 +2,12 @@
 
 -- 사용자 테이블 생성
 
-CREATE OR REPLACE TABLE users (
-    user_id INT64 NOT NULL,
+CREATE TABLE users (
+    user_id BIGINT NOT NULL,
     registration_date DATE NOT NULL,
-    user_type STRING NOT NULL,
-    city STRING,
-    country STRING
+    user_type VARCHAR NOT NULL,
+    city VARCHAR,
+    country VARCHAR
 );
 
 -- 사용자 데이터 삽입
@@ -46,12 +46,12 @@ VALUES
 (30, '2024-05-10', 'REGULAR', 'Busan', 'South Korea');
 
 -- 공급업체 테이블 생성
-CREATE OR REPLACE TABLE suppliers (
-    supplier_id INT64 NOT NULL,
-    supplier_name STRING NOT NULL,
-    contact_person STRING,
-    contact_email STRING,
-    country STRING
+CREATE TABLE suppliers (
+    supplier_id BIGINT NOT NULL,
+    supplier_name VARCHAR NOT NULL,
+    contact_person VARCHAR,
+    contact_email VARCHAR,
+    country VARCHAR
 );
 
 -- 공급업체 데이터 삽입
@@ -70,10 +70,10 @@ VALUES
 (10, 'Gwangju Sports Equipment', 'Lim Junho', 'lim.junho@gwangjusports.com', 'South Korea');
 
 -- 제품 카테고리 테이블 생성
-CREATE OR REPLACE TABLE categories (
-    category_id INT64 NOT NULL,
-    category_name STRING NOT NULL,
-    parent_category_id INT64
+CREATE TABLE categories (
+    category_id BIGINT NOT NULL,
+    category_name VARCHAR NOT NULL,
+    parent_category_id BIGINT
 );
 
 -- 카테고리 데이터 삽입
@@ -104,14 +104,14 @@ VALUES
 (22, '캠핑용품', 19);
 
 -- 제품 테이블 생성
-CREATE OR REPLACE TABLE products (
-    product_id INT64 NOT NULL,
-    product_name STRING NOT NULL,
-    category_id INT64 NOT NULL,
+CREATE TABLE products (
+    product_id BIGINT NOT NULL,
+    product_name VARCHAR NOT NULL,
+    category_id BIGINT NOT NULL,
     price NUMERIC NOT NULL,
-    stock_quantity INT64 NOT NULL,
+    stock_quantity BIGINT NOT NULL,
     added_date DATE NOT NULL,
-    supplier_id INT64 NOT NULL
+    supplier_id BIGINT NOT NULL
 );
 
 -- 제품 데이터 삽입
@@ -165,13 +165,13 @@ VALUES
 (905, '스마트 운동 밴드', 20, 49000, 100, '2023-01-20', 10);
 
 -- 주문 테이블 생성
-CREATE OR REPLACE TABLE orders (
-    order_id INT64 NOT NULL,
-    user_id INT64 NOT NULL,
+CREATE TABLE orders (
+    order_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     order_date TIMESTAMP NOT NULL,
     total_amount NUMERIC NOT NULL,
-    payment_method STRING,
-    order_status STRING NOT NULL
+    payment_method VARCHAR,
+    order_status VARCHAR NOT NULL
 );
 
 -- 주문 데이터 삽입
@@ -310,11 +310,11 @@ VALUES
 (10130, 16, '2024-05-18 12:15:30', 49000, '간편결제', '결제완료');
 
 -- 주문 상세 테이블 생성
-CREATE OR REPLACE TABLE order_items (
-    order_item_id INT64 NOT NULL,
-    order_id INT64 NOT NULL,
-    product_id INT64 NOT NULL,
-    quantity INT64 NOT NULL,
+CREATE TABLE order_items (
+    order_item_id BIGINT NOT NULL,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity BIGINT NOT NULL,
     price_per_unit NUMERIC NOT NULL,
     discount NUMERIC DEFAULT 0
 );
@@ -505,12 +505,12 @@ VALUES
 (1180, 10130, 802, 1, 49000, 0);
 
 -- 제품 리뷰 테이블 생성
-CREATE OR REPLACE TABLE reviews (
-    review_id INT64 NOT NULL,
-    product_id INT64 NOT NULL,
-    user_id INT64 NOT NULL,
-    rating INT64 NOT NULL,
-    review_text STRING,
+CREATE TABLE reviews (
+    review_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    rating BIGINT NOT NULL,
+    review_text VARCHAR,
     review_date TIMESTAMP NOT NULL
 );
 
