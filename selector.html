@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STATRACK 1기 발표 히어로 뽑기</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <style>
+    :root {
+      --size: 400px;      /* 회전판 지름 */
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: auto;
+    }
+    
+    .container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 4rem;
+      margin-bottom: 4rem;
+    }
+    
+    .step-info {
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      min-height: 2rem;
+    }
+    
+    canvas {
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+    
+    canvas:hover {
+      transform: scale(1.02);
+    }
+    
+    /* 회전 중일 때 더 강한 그림자 효과 */
+    canvas.spinning {
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    }
+    
+    #spinBtn {
+      padding: 1rem 3rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    #spinBtn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    #spinBtn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #result {
+      font-size: 2.5rem;
+      font-weight: 700;
+      min-height: 3rem;
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      display: none; /* 처음에는 완전히 숨김 */
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    #result.show {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .progress {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .progress-step {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .progress-step.active {
+      background: #ff6b6b;
+      box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+    }
+    
+    .progress-step.completed {
+      background: #4ecdc4;
+    }
+    
+    /* 폭죽 파티클 스타일 */
+    .firework-particle {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 50%;
+      z-index: 9999;
+    }
+    
+    .firework-spark {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    
+    .firework-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎡 STATRACK 1기 발표 예비 분석가 뽑기 🎡</h1>
+    
+    <div class="progress">
+      <div class="progress-step active" id="step1">1</div>
+      <div class="progress-step" id="step2">2</div>
+    </div>
+    
+    <div class="step-info" id="stepInfo">1단계: 과연 어떤 조가 선택될 것인가...</div>
+    
+    <div class="wheel-container">
+      <canvas id="wheel" width="420" height="420"></canvas>
+      <button id="spinBtn">🎲 돌리기!</button>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    /****** 멤버 데이터 ******/
+    const membersData = [
+      { name: "노윤재", team: "6" },
+      { name: "박동훈", team: "3" },
+      { name: "배정인", team: "7" },
+      { name: "장혜성", team: "4" },
+      { name: "조은주", team: "7" },
+      { name: "손민우", team: "4" },
+      { name: "이명재", team: "3" },
+      { name: "최주현", team: "1" },
+      { name: "김준우", team: "4" },
+      { name: "박은빈", team: "8" },
+      { name: "김선영", team: "7" },
+      { name: "문주연", team: "5" },
+      { name: "황인탁", team: "5" },
+      { name: "장현영", team: "1" },
+      { name: "김어진", team: "4" },
+      { name: "강나영", team: "1" },
+      { name: "김가영", team: "5" },
+      { name: "김해빈", team: "8" },
+      { name: "박지수", team: "3" },
+      { name: "정현조", team: "2" },
+      { name: "한정석", team: "6" },
+      { name: "조백찬", team: "1" },
+      { name: "장윤서", team: "1" },
+      { name: "손유진", team: "7" },
+      { name: "권준혁", team: "6" },
+      { name: "전형민", team: "6" },
+      { name: "유승현", team: "8" },
+      { name: "윤이나", team: "3" },
+      { name: "박인기", team: "5" },
+      { name: "정성준", team: "8" },
+      { name: "신윤식", team: "7" },
+      { name: "민경은", team: "8" },
+      { name: "구서원", team: "2" },
+      { name: "유예지", team: "2" },
+      { name: "최우석", team: "5" },
+      { name: "서준석", team: "6" }
+    ];
+    
+    // 조별로 그룹핑
+    const teamGroups = {};
+    membersData.forEach(member => {
+      if (!teamGroups[member.team]) {
+        teamGroups[member.team] = [];
+      }
+      teamGroups[member.team].push(member.name);
+    });
+    
+    // 조 목록 생성 (1조~8조)
+    const teams = Object.keys(teamGroups).sort((a, b) => Number(a) - Number(b)).map(team => `${team}조`);
+    
+    /************************************/
+
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    const resultDiv = document.getElementById('result');
+    const spinBtn = document.getElementById('spinBtn');
+    const stepInfo = document.getElementById('stepInfo');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    
+    let currentStep = 1; // 1: 조 선택, 2: 멤버 선택
+    let selectedTeam = null;
+    let currentItems = teams; // 현재 회전판에 표시될 항목들
+    let slice, radius, center, colors;
+    
+    let rotation = 0;
+    let velocity = 0;
+    let spinning = false;
+    let rafId;
+
+    // 회전판 초기화
+    function initializeWheel() {
+      slice = (2 * Math.PI) / currentItems.length;
+      radius = canvas.width / 2 - 10;
+      center = { x: canvas.width / 2, y: canvas.height / 2 };
+      
+      colors = currentItems.map((_, i) => `hsl(${360 * i / currentItems.length}, 75%, 65%)`);
+      
+      drawWheel();
+    }
+
+    // 회전판 그리기
+    function drawWheel() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.rotate(rotation);
+
+      currentItems.forEach((txt, i) => {
+        // 파이 조각
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, i * slice, (i + 1) * slice);
+        ctx.closePath();
+        ctx.fillStyle = colors[i];
+        ctx.fill();
+        
+        // 테두리
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 텍스트
+        ctx.save();
+        ctx.rotate(i * slice + slice / 2);
+        ctx.translate(radius * 0.7, 0);
+        ctx.rotate(Math.PI / 2);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 3;
+        ctx.fillText(txt, 0, 0);
+        ctx.restore();
+      });
+
+      ctx.restore();
+      drawPointer();
+    }
+
+    // 화살표 그리기
+    function drawPointer() {
+      ctx.fillStyle = "#333";
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(center.x, center.y - radius + 15);
+      ctx.lineTo(center.x - 20, center.y - radius - 20);
+      ctx.lineTo(center.x + 20, center.y - radius - 20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // 회전 시작
+    function spin() {
+      if (spinning) return;
+      
+      // 3배 더 오래 돌도록 초기 속도 대폭 증가
+      velocity = Math.random() * 0.6 + 1.2;
+      spinning = true;
+      resultDiv.textContent = "";
+      resultDiv.classList.remove('show'); // 결과 영역 숨김
+      spinBtn.disabled = true;
+      spinBtn.textContent = "돌리는 중...";
+      canvas.classList.add('spinning'); // 회전 중 스타일 적용
+      rafId = requestAnimationFrame(step);
+    }
+
+    // 회전 애니메이션 (극적인 감속 효과 추가)
+    function step() {
+      rotation = (rotation + velocity) % (2 * Math.PI);
+      
+      // 더 세분화된 단계적 감속으로 훨씬 더 긴 감속 구간
+      if (velocity > 0.4) {
+        // 매우 빠른 구간: 거의 감속하지 않음
+        velocity *= 0.995;
+      } else if (velocity > 0.2) {
+        // 빠른 구간: 아주 조금씩 감속
+        velocity *= 0.992;
+      } else if (velocity > 0.1) {
+        // 중간 빠름 구간: 조금 더 감속
+        velocity *= 0.990;
+      } else if (velocity > 0.05) {
+        // 중간 구간: 보통 감속
+        velocity *= 0.988;
+      } else if (velocity > 0.025) {
+        // 중간 느림 구간: 더 천천히 감속
+        velocity *= 0.985;
+      } else if (velocity > 0.015) {
+        // 느린 구간: 더욱 천천히 감속
+        velocity *= 0.982;
+      } else if (velocity > 0.008) {
+        // 매우 느린 구간: 극도로 천천히 감속
+        velocity *= 0.978;
+      } else if (velocity > 0.004) {
+        // 거의 정지 구간: 극극히 천천히 감속
+        velocity *= 0.974;
+      } else {
+        // 마지막 구간: 최대한 천천히 감속 (극적 효과)
+        velocity *= 0.970;
+      }
+      
+      // 더 긴 구간에서 시각적 효과 추가
+      if (velocity < 0.025 && velocity > 0.0002) {
+        canvas.style.filter = `brightness(${1 + Math.sin(Date.now() * 0.015) * 0.25})`;
+      } else {
+        canvas.style.filter = 'brightness(1)';
+      }
+      
+      drawWheel();
+      
+      // 훨씬 더 작은 값까지 돌도록 조정
+      if (velocity < 0.0002) {
+        spinning = false;
+        cancelAnimationFrame(rafId);
+        canvas.style.filter = 'brightness(1)';
+        canvas.classList.remove('spinning'); // 회전 중 스타일 제거
+        showResult();
+      } else {
+        rafId = requestAnimationFrame(step);
+      }
+    }
+
+    // 결과 표시 (극적인 효과 추가)
+    function showResult() {
+      const pointerAngle = (1.5 * Math.PI - rotation + 2 * Math.PI) % (2 * Math.PI);
+      const idx = Math.floor(pointerAngle / slice);
+      const selectedItem = currentItems[idx];
+      
+      // 드럼롤 효과 (결과 표시 전 잠시 대기)
+      spinBtn.textContent = "🥁 두구두구...";
+      
+             setTimeout(() => {
+         resultDiv.textContent = selectedItem;
+         resultDiv.style.color = colors[idx];
+         resultDiv.style.textShadow = `0 0 20px ${colors[idx]}`;
+         resultDiv.classList.add('show'); // 결과 영역 표시
+         
+         // 더 극적인 애니메이션 효과
+         resultDiv.animate([
+           { transform: "scale(0) rotate(-180deg)", opacity: 0 },
+           { transform: "scale(1.8) rotate(0deg)", opacity: 0.8 },
+           { transform: "scale(1) rotate(0deg)", opacity: 1 }
+         ], { duration: 800, easing: "cubic-bezier(0.68, -0.55, 0.265, 1.55)" });
+        
+        // 선택된 섹션 강조 효과
+        canvas.animate([
+          { filter: "brightness(1) saturate(1)" },
+          { filter: "brightness(1.5) saturate(1.5)" },
+          { filter: "brightness(1) saturate(1)" }
+        ], { duration: 1000, easing: "ease-in-out" });
+        
+             }, 1200); // 더 긴 드럼롤 대기 시간
+      
+      // 단계별 처리
+      if (currentStep === 1) {
+        // 1단계 완료: 조 선택됨
+        selectedTeam = selectedItem.replace('조', '');
+        step1.classList.remove('active');
+        step1.classList.add('completed');
+        step2.classList.add('active');
+        
+        setTimeout(() => {
+          setupStep2();
+        }, 3000); // 더 긴 회전 시간을 고려하여 조정
+        
+      } else {
+        // 2단계 완료: 최종 선택
+        step2.classList.remove('active');
+        step2.classList.add('completed');
+        stepInfo.innerHTML = `🎉 최종 선택: <strong>${selectedTeam}조 ${selectedItem}</strong> 🎉`;
+        spinBtn.style.display = 'none';
+        
+        // 축하 애니메이션
+        setTimeout(() => {
+          showCelebration();
+        }, 2000); // 더 긴 회전 시간을 고려하여 조정
+      }
+    }
+
+    // 2단계 설정
+    function setupStep2() {
+      currentStep = 2;
+      currentItems = teamGroups[selectedTeam];
+      stepInfo.textContent = `2단계: ${selectedTeam}조에서 선택될 예비 분석가는 누구인가?`;
+      
+      initializeWheel();
+      
+      spinBtn.disabled = false;
+      spinBtn.textContent = "🎲 멤버 선택!";
+      resultDiv.textContent = "";
+      resultDiv.classList.remove('show'); // 2단계에서도 결과 영역 숨김
+    }
+
+    // Anime.js를 사용한 축하 폭죽 애니메이션
+    function showCelebration() {
+      createFireworksBurst();
+    }
+
+    // 폭죽 버스트 생성 함수
+    function createFireworksBurst() {
+      const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
+      const burstCount = 8; // 폭죽 폭발 횟수
+      
+      for (let i = 0; i < burstCount; i++) {
+        setTimeout(() => {
+          createSingleFirework();
+        }, i * 600);
+      }
+    }
+
+    // 단일 폭죽 생성 함수
+    function createSingleFirework() {
+      const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
+      const startX = Math.random() * window.innerWidth;
+      const startY = window.innerHeight;
+      const targetX = Math.random() * window.innerWidth;
+      const targetY = Math.random() * (window.innerHeight * 0.3) + 100;
+      
+      // 로켓 발사 효과
+      const rocket = document.createElement('div');
+      rocket.className = 'firework-trail';
+      rocket.style.left = startX + 'px';
+      rocket.style.top = startY + 'px';
+      rocket.style.width = '4px';
+      rocket.style.height = '20px';
+      rocket.style.background = 'linear-gradient(to top, #fff, #ff6b6b)';
+      rocket.style.borderRadius = '2px';
+      document.body.appendChild(rocket);
+      
+      // 로켓 애니메이션
+      anime({
+        targets: rocket,
+        left: targetX,
+        top: targetY,
+        duration: 1000,
+        easing: 'easeOutCubic',
+        complete: () => {
+          // 로켓 제거
+          rocket.remove();
+          // 폭발 효과 생성
+          createExplosion(targetX, targetY, colors);
+        }
+      });
+    }
+
+    // 폭발 효과 생성 함수
+    function createExplosion(x, y, colors) {
+      const particleCount = 25;
+      const particles = [];
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'firework-particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.width = Math.random() * 8 + 4 + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.boxShadow = `0 0 10px ${particle.style.background}`;
+        document.body.appendChild(particle);
+        particles.push(particle);
+        
+        // 각 파티클의 랜덤 방향과 거리
+        const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5;
+        const distance = Math.random() * 200 + 100;
+        const endX = x + Math.cos(angle) * distance;
+        const endY = y + Math.sin(angle) * distance + Math.random() * 100;
+        
+        // 파티클 애니메이션
+        anime({
+          targets: particle,
+          left: endX,
+          top: endY,
+          opacity: [1, 0],
+          scale: [1, 0],
+          duration: 1500 + Math.random() * 500,
+          easing: 'easeOutCubic',
+          complete: () => {
+            particle.remove();
+          }
+        });
+        
+        // 반짝이는 효과
+        if (Math.random() < 0.3) {
+          anime({
+            targets: particle,
+            opacity: [1, 0.3, 1, 0.3, 1],
+            duration: 300,
+            easing: 'linear',
+            loop: 2
+          });
+        }
+      }
+      
+      // 중앙 플래시 효과
+      createFlashEffect(x, y);
+    }
+
+    // 플래시 효과 생성 함수
+    function createFlashEffect(x, y) {
+      const flash = document.createElement('div');
+      flash.className = 'firework-spark';
+      flash.style.left = (x - 50) + 'px';
+      flash.style.top = (y - 50) + 'px';
+      flash.style.width = '100px';
+      flash.style.height = '100px';
+      flash.style.background = 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)';
+      flash.style.borderRadius = '50%';
+      document.body.appendChild(flash);
+      
+      anime({
+        targets: flash,
+        scale: [0, 1.5, 0],
+        opacity: [1, 0.7, 0],
+        duration: 300,
+        easing: 'easeOutCubic',
+        complete: () => {
+          flash.remove();
+        }
+      });
+    }
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeWheel();
+      
+      // 스핀 버튼 이벤트 리스너
+      spinBtn.addEventListener('click', spin);
+    });
+  </script>
+</body>
+</html> 
