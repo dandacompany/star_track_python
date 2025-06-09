@@ -1,0 +1,58 @@
+# 데이터 분석
+pandas
+numpy
+matplotlib
+seaborn
+scipy
+scikit-learn
+statsmodels
+
+# 데이터 시각화
+plotly
+bokeh
+kaleido
+dash
+dash-bootstrap-components
+jupyter-dash
+
+# 데이터베이스 연결
+psycopg2-binary
+sqlalchemy
+elasticsearch
+
+# 머신러닝 및 딥러닝
+# tensorflow와 pytorch는 설치 문제가 있어 주석 처리
+tensorflow
+keras
+torch
+xgboost
+lightgbm
+
+# 자연어 처리
+nltk
+txtai # 올인원 임베딩 프레임워크
+konlpy
+# spacy 설치 문제로 주석 처리
+# spacy
+# gensim
+
+# 이미지 처리
+pillow
+# opencv-python은 종종 설치 문제가 있어 주석 처리
+# opencv-python
+
+# 웹 스크래핑
+beautifulsoup4
+requests
+
+# 기타 유틸리티
+jupyterlab
+ipykernel
+jupyter
+tqdm
+joblib
+
+# 데이터셋
+kaggle
+
+
