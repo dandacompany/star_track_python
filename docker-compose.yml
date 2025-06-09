@@ -1,6 +1,6 @@
 services:
   statrack_jupyter:
-    build: .
+    build: ./docker/jupyter
     ports:
       - "${JUPYTER_PORT}:8888" # Jupyter Notebook 포트
       - 8050:8050 # Dash 앱 포트
@@ -13,3 +13,37 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     command: start-notebook.py --NotebookApp.token='${JUPYTER_TOKEN}'
+    networks:
+      - default # 기본 네트워크 사용 
+
+  konlpy:
+    build:
+      context: ./docker/konlpy 
+    ports:
+      - "8891:8888" # 주피터 노트북 포트
+    command: start-notebook.py  --NotebookApp.token='${JUPYTER_TOKEN}'
+
+  elasticsearch:
+    build:
+      context: ./docker/elasticsearch
+    ports:
+      - "9200:9200" # 엘라스틱 서치 HTTP 포트
+      - "9300:9300" # 엘라스틱 서치 TCP 전송 포트
+    environment:
+      - discovery.type=single-node # 개발 환경을 위한 단일 노드 설정
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m # JVM 힙 크기 설정 (필요에 따라 조정)
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - default # 기본 네트워크 사용 
+
+volumes:
+  esdata: # 엘라스틱 서치 데이터 볼륨 정의
+    driver: local
+
+networks:
+  default:
+    driver: bridge
