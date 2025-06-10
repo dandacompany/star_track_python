@@ -21,7 +21,7 @@ services:
       context: ./docker/konlpy 
     ports:
       - "8891:8888" # 주피터 노트북 포트
-    command: start-notebook.py  --NotebookApp.token='${JUPYTER_TOKEN}'
+    command: jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='${JUPYTER_TOKEN}'
 
   elasticsearch:
     build:
