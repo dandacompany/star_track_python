@@ -1,27 +1,27 @@
 services:
-  statrack_jupyter:
-    build: ./docker/jupyter
-    ports:
-      - "${JUPYTER_PORT}:8888" # Jupyter Notebook 포트
-      - 8050:8050 # Dash 앱 포트
-    volumes:
-      - ./datasets:/home/jovyan/work/datasets
-      - ./lib:/home/jovyan/work/lib
-    environment:
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    command: start-notebook.py --NotebookApp.token='${JUPYTER_TOKEN}'
-    networks:
-      - default # 기본 네트워크 사용 
+  # statrack_jupyter:
+  #   build: ./docker/jupyter
+  #   ports:
+  #     - "${JUPYTER_PORT}:8888" # Jupyter Notebook 포트
+  #     - 8050:8050 # Dash 앱 포트
+  #   volumes:
+  #     - ./datasets:/home/jovyan/work/datasets
+  #     - ./lib:/home/jovyan/work/lib
+  #   environment:
+  #     - POSTGRES_HOST=${POSTGRES_HOST}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   command: start-notebook.py --NotebookApp.token='${JUPYTER_TOKEN}'
+  #   networks:
+  #     - default # 기본 네트워크 사용 
 
-  konlpy:
-    build:
-      context: ./docker/konlpy 
-    ports:
-      - "8891:8888" # 주피터 노트북 포트
-    command: jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='${JUPYTER_TOKEN}'
+  # konlpy:
+  #   build:
+  #     context: ./docker/konlpy 
+  #   ports:
+  #     - "8891:8888" # 주피터 노트북 포트
+  #   command: jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='${JUPYTER_TOKEN}'
 
   elasticsearch:
     build:

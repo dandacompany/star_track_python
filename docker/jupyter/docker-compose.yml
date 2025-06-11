@@ -1,0 +1,21 @@
+services:
+  statrack_jupyter:
+    build: .
+    ports:
+      - "${JUPYTER_PORT}:8888" # Jupyter Notebook 포트
+      - 8050:8050 # Dash 앱 포트
+    volumes:
+      - ./datasets:/home/jovyan/work/datasets
+      - ./lib:/home/jovyan/work/lib
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: start-notebook.py --NotebookApp.token='${JUPYTER_TOKEN}'
+    networks:
+      - default # 기본 네트워크 사용 
+
+networks:
+  default:
+    external: true

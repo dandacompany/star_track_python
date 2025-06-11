@@ -1,0 +1,38 @@
+services:
+  ollama:
+    build: .
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./custom:/custom
+    # nvidia GPU 가 있는 분은 아래를 주석 해제하세요.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    restart: unless-stopped
+
+  open-webui:
+      image: ghcr.io/open-webui/open-webui:main
+      container_name: open-webui
+      volumes:
+        - open-webui_data:/app/backend/data
+      depends_on:
+        - ollama
+      ports:
+        - "2025:8080"
+      environment:
+        - OLLAMA_BASE_URL=http://ollama:11434
+        - WEBUI_SECRET_KEY=
+      extra_hosts:
+        - host.docker.internal:host-gateway
+      restart: unless-stopped
+
+volumes:
+  ollama_data:
+  open-webui_data:
